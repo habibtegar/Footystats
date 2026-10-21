@@ -58,9 +58,11 @@ a {
 }
 
 /* Header & Navbar */
-.navbar-minimal {
-  border-bottom: 1px solid var(--border);
+.navbar-wrapper {
   background-color: var(--bg-main);
+}
+
+.navbar-minimal {
   height: 54px;
   display: flex;
   align-items: center;
@@ -90,7 +92,7 @@ a {
 .nav-menu {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 20px;
   font-size: 13px;
   font-weight: 500;
   color: var(--text-secondary);
@@ -101,10 +103,35 @@ a {
   padding: 4px 0;
   position: relative;
   transition: color 0.15s ease;
+  font-size: 13px;
 }
 
 .nav-menu-item:hover {
   color: #ffffff;
+}
+
+.nav-menu-item.active-nav {
+  color: #ffffff;
+}
+
+.nav-menu-item.active-nav::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #10b981;
+  border-radius: 2px;
+}
+
+@keyframes fadeInNav {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeInNav 0.15s ease-out;
 }
 
 .status-badge-passive {
