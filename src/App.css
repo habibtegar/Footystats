@@ -271,7 +271,7 @@ a {
 
 .panel-header {
   border-bottom: 1px solid var(--border);
-  padding: 10px 14px;
+  padding: 12px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
