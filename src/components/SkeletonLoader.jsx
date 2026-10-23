@@ -77,6 +77,17 @@ export function SkeletonStandingsRow() {
       <td className="table-pts py-2.5 pr-2.5">
         <div className="w-5 h-3.5 ml-auto rounded bg-zinc-800/90 font-bold" />
       </td>
+
+      {/* Form (Hidden on mobile) */}
+      <td className="table-form py-2.5 hidden lg:table-cell">
+        <div className="hidden lg:flex items-center justify-center gap-1.5">
+          <div className="w-2 h-2 rounded-full bg-zinc-800 shrink-0" />
+          <div className="w-2 h-2 rounded-full bg-zinc-800 shrink-0" />
+          <div className="w-2 h-2 rounded-full bg-zinc-800 shrink-0" />
+          <div className="w-2 h-2 rounded-full bg-zinc-800 shrink-0" />
+          <div className="w-2 h-2 rounded-full bg-zinc-800 shrink-0" />
+        </div>
+      </td>
     </tr>
   );
 }
@@ -92,6 +103,7 @@ export function SkeletonStandingsList({ count = 10 }) {
             <th className="table-num">P</th>
             <th className="table-num hidden sm:table-cell standings-gd-col">GD</th>
             <th className="table-pts">PTS</th>
+            <th className="table-form hidden lg:table-cell text-center">FORM</th>
           </tr>
         </thead>
         <tbody>

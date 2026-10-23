@@ -1,4 +1,17 @@
+import { useState, useMemo } from "react";
+
 export function TopScorers({ scorers = [], competitionName }) {
+  const [activeTab, setActiveTab] = useState("goals"); // 'goals' | 'assists'
+
+  // Urutkan ulang data secara lokal tanpa fetch API ulang saat tab ASSIST aktif
+  const displayScorers = useMemo(() => {
+    if (!scorers || scorers.length === 0) return [];
+    if (activeTab === "assists") {
+      return [...scorers].sort((a, b) => (b.assists || 0) - (a.assists || 0));
+    }
+    return scorers;
+  }, [scorers, activeTab]);
+
   if (!scorers || scorers.length === 0) {
     return (
       <div className="empty-data-box">
@@ -9,25 +22,60 @@ export function TopScorers({ scorers = [], competitionName }) {
 
   return (
     <div className="w-full">
+      {/* Toggle Tab Ringkas ("GOL" | "ASSIST") di Area Header Tabel */}
+      <div className="scorers-header-toolbar">
+        <span className="text-[11px] font-medium text-zinc-400">
+          Kategori:
+        </span>
+        <div className="scorers-toggle-pill" role="tablist" aria-label="Toggle Kategori Statistik">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === "goals"}
+            onClick={() => setActiveTab("goals")}
+            className={`scorers-tab-btn ${activeTab === "goals" ? "active" : ""}`}
+          >
+            GOL
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === "assists"}
+            onClick={() => setActiveTab("assists")}
+            className={`scorers-tab-btn ${activeTab === "assists" ? "active" : ""}`}
+          >
+            ASSIST
+          </button>
+        </div>
+      </div>
+
       <table className="standings-table-root">
         <thead>
           <tr>
             <th className="table-pos">#</th>
             <th className="text-left">Pemain</th>
             <th className="table-num" title="Pertandingan Dimainkan">M</th>
-            <th className="table-num" title="Assist">A</th>
-            <th className="table-pts" title="Total Gol">GOL</th>
+            <th className="table-num" title={activeTab === "goals" ? "Assist" : "Total Gol"}>
+              {activeTab === "goals" ? "A" : "G"}
+            </th>
+            <th className="table-pts" title={activeTab === "goals" ? "Total Gol" : "Total Assist"}>
+              {activeTab === "goals" ? "GOL" : "ASSIST"}
+            </th>
           </tr>
         </thead>
         <tbody>
-          {scorers.map((row, index) => {
-            const pos = row.position || index + 1;
+          {displayScorers.map((row, index) => {
+            const pos = activeTab === "goals" ? (row.position || index + 1) : index + 1;
             const playerName = row.player?.name || "Pemain";
             const teamName = row.team?.shortName || row.team?.name || "";
             const crest = row.team?.crest;
             const goals = row.goals ?? row.numberOfGoals ?? 0;
             const assists = row.assists ?? 0;
             const matches = row.playedMatches ?? "-";
+
+            // Nilai sekunder vs nilai utama yang sedang aktif di kolom paling kanan
+            const secondaryVal = activeTab === "goals" ? assists : goals;
+            const primaryVal = activeTab === "goals" ? goals : assists;
 
             return (
               <tr key={row.player?.id || index}>
@@ -63,12 +111,14 @@ export function TopScorers({ scorers = [], competitionName }) {
                 {/* Matches Played */}
                 <td className="table-num text-zinc-400">{matches}</td>
 
-                {/* Assists */}
-                <td className="table-num text-zinc-400">{assists}</td>
+                {/* Secondary Stat (Muted) */}
+                <td className="table-num text-zinc-400">{secondaryVal}</td>
 
-                {/* Goals */}
-                <td className="table-pts font-bold text-white">
-                  {goals}
+                {/* Primary Stat: Highlight angka di kolom paling kanan sesuai kategori tab yang aktif */}
+                <td className="table-pts font-bold font-mono">
+                  <span className="text-emerald-400">
+                    {primaryVal}
+                  </span>
                 </td>
               </tr>
             );

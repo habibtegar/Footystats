@@ -667,6 +667,54 @@ a {
   padding-right: 10px;
 }
 
+.table-form {
+  width: 76px;
+  text-align: center;
+}
+
+/* Scorers Header Toolbar & Toggle */
+.scorers-header-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--border);
+  background-color: #101014;
+}
+
+.scorers-toggle-pill {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background-color: #09090b;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px;
+}
+
+.scorers-tab-btn {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  padding: 2px 8px;
+  border-radius: 3px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.scorers-tab-btn:hover {
+  color: #ffffff;
+}
+
+.scorers-tab-btn.active {
+  color: #ffffff;
+  background-color: #27272a;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
 .standings-mini-legend {
   padding: 7px 12px;
   border-top: 1px solid var(--border);

@@ -24,6 +24,7 @@ export function MiniStandings({ standings = [], competitionName }) {
             <th className="table-num" title="Main (Played)">P</th>
             <th className="table-num hidden sm:table-cell standings-col-gd" title="Selisih Gol (Goal Difference)">GD</th>
             <th className="table-pts" title="Total Poin">PTS</th>
+            <th className="table-form hidden lg:table-cell text-center" title="Form (5 Pertandingan Terakhir)">FORM</th>
           </tr>
         </thead>
         <tbody>
@@ -39,6 +40,14 @@ export function MiniStandings({ standings = [], competitionName }) {
               : isRel
               ? "td-rel-zone"
               : "";
+
+            // Parse data form string (misal: "W,D,L,W,W")
+            const formItems = typeof row.form === "string"
+              ? (row.form.includes(",") ? row.form.split(",") : row.form.split(""))
+                  .map((s) => s.trim().toUpperCase())
+                  .filter(Boolean)
+                  .slice(-5)
+              : [];
 
             return (
               <tr key={row.team?.id || row.position}>
@@ -87,6 +96,44 @@ export function MiniStandings({ standings = [], competitionName }) {
                 {/* Points */}
                 <td className="table-pts">
                   {row.points}
+                </td>
+
+                {/* Indikator Performa (Form) - Hidden di smartphone, Flex di desktop */}
+                <td className="table-form hidden lg:table-cell">
+                  <div
+                    className="hidden lg:flex items-center justify-center gap-1.5"
+                    title={row.form ? `Form: ${row.form}` : "Belum ada data form"}
+                  >
+                    {formItems.length > 0 ? (
+                      formItems.map((item, idx) => {
+                        const bgClass =
+                          item === "W"
+                            ? "bg-emerald-500"
+                            : item === "D"
+                            ? "bg-zinc-500"
+                            : item === "L"
+                            ? "bg-rose-500"
+                            : "bg-zinc-600";
+                        const label =
+                          item === "W"
+                            ? "Menang (W)"
+                            : item === "D"
+                            ? "Seri (D)"
+                            : item === "L"
+                            ? "Kalah (L)"
+                            : item;
+                        return (
+                          <span
+                            key={idx}
+                            className={`w-2 h-2 rounded-full shrink-0 ${bgClass}`}
+                            title={label}
+                          />
+                        );
+                      })
+                    ) : (
+                      <span className="text-zinc-600 text-xs">-</span>
+                    )}
+                  </div>
                 </td>
               </tr>
             );
