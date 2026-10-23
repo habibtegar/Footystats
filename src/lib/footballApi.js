@@ -1,7 +1,10 @@
-import { MOCK_FOOTBALL_DATA, LEAGUES } from "./mockFootballData";
+import { MOCK_FOOTBALL_DATA, LEAGUES } from "./mockFootballData.js";
 
 // Token diambil permanen langsung dari environment variable
-const API_KEY = (import.meta.env.VITE_FOOTBALL_API_KEY || "").trim();
+const API_KEY = (
+  (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_FOOTBALL_API_KEY) ||
+  ""
+).trim();
 
 export function getActiveApiKey() {
   return API_KEY;
@@ -65,62 +68,93 @@ function setCachedData(cacheKey, data) {
 }
 
 /**
- * Format tanggal & waktu pertandingan lokal (WIB / user local time)
+ * Mengambil komponen tanggal (tahun, bulan, tanggal) dalam zona waktu Asia/Jakarta (WIB)
+ */
+export function getJakartaDateParts(dateInput = new Date()) {
+  const d = new Date(dateInput);
+  if (isNaN(d.getTime())) return null;
+
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Jakarta",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const parts = formatter.formatToParts(d);
+  const partMap = {};
+  for (const part of parts) {
+    partMap[part.type] = part.value;
+  }
+
+  const year = parseInt(partMap.year, 10);
+  const month = parseInt(partMap.month, 10);
+  const day = parseInt(partMap.day, 10);
+  const dateString = `${partMap.year}-${partMap.month}-${partMap.day}`;
+
+  return { year, month, day, dateString };
+}
+
+/**
+ * Format tanggal & waktu pertandingan zona waktu WIB (Asia/Jakarta)
  */
 export function formatMatchDateTime(utcDate) {
   if (!utcDate) return { date: "-", time: "-" };
   try {
     const d = new Date(utcDate);
+    if (isNaN(d.getTime())) return { date: "-", time: "-" };
+
     const dateStr = d.toLocaleDateString("id-ID", {
+      timeZone: "Asia/Jakarta",
       weekday: "short",
       day: "numeric",
       month: "short",
     });
-    const timeStr = d.toLocaleTimeString("id-ID", {
+
+    const timeStr = new Date(utcDate).toLocaleTimeString("id-ID", {
+      timeZone: "Asia/Jakarta",
       hour: "2-digit",
       minute: "2-digit",
-      hour12: false,
     });
+
     return { date: dateStr, time: `${timeStr} WIB` };
   } catch {
-    return { date: utcDate, time: "-" };
+    return { date: String(utcDate), time: "-" };
   }
 }
 
 /**
  * Mengonversi utcDate dari API menjadi string tanggal lokal (YYYY-MM-DD)
- * berdasarkan zona waktu lokal browser pengguna (misal WIB UTC+7).
+ * berdasarkan zona waktu Asia/Jakarta (WIB UTC+7).
  */
 export function getLocalMatchDateString(utcDate) {
   if (!utcDate) return "";
-  const d = new Date(utcDate);
-  if (isNaN(d.getTime())) return "";
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  const parts = getJakartaDateParts(utcDate);
+  return parts ? parts.dateString : "";
 }
 
 /**
- * Menentukan kategori hari suatu pertandingan dalam waktu lokal browser:
+ * Menentukan kategori hari suatu pertandingan dalam waktu Asia/Jakarta (WIB):
  * Mengembalikan: 'today' | 'yesterday' | 'tomorrow' | 'other'
  * 
  * Laga jam 02.00 pagi melewati tengah malam waktu lokal akan akurat
- * masuk ke kategori 'tomorrow' (Besok) atau 'today' (Hari Ini) sesuai waktu lokal pengguna.
+ * masuk ke kategori 'tomorrow' (Besok) atau 'today' (Hari Ini) sesuai waktu Asia/Jakarta (WIB),
+ * bahkan ketika aplikasi di-deploy di platform cloud server yang menggunakan zona waktu UTC.
  */
 export function getMatchLocalDayCategory(utcDate) {
   if (!utcDate) return "other";
   const matchDateKey = getLocalMatchDateString(utcDate);
   if (!matchDateKey) return "other";
 
-  const now = new Date();
-  const todayKey = getLocalMatchDateString(now);
+  const nowParts = getJakartaDateParts(new Date());
+  if (!nowParts) return "other";
 
-  const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-  const yesterdayKey = getLocalMatchDateString(yesterday);
+  const todayKey = nowParts.dateString;
 
-  const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-  const tomorrowKey = getLocalMatchDateString(tomorrow);
+  const yesterdayUtcDate = new Date(Date.UTC(nowParts.year, nowParts.month - 1, nowParts.day - 1));
+  const yesterdayKey = yesterdayUtcDate.toISOString().slice(0, 10);
+
+  const tomorrowUtcDate = new Date(Date.UTC(nowParts.year, nowParts.month - 1, nowParts.day + 1));
+  const tomorrowKey = tomorrowUtcDate.toISOString().slice(0, 10);
 
   if (matchDateKey === todayKey) return "today";
   if (matchDateKey === yesterdayKey) return "yesterday";

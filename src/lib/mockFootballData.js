@@ -106,10 +106,21 @@ export const MOCK_FOOTBALL_DATA = {
         // Laga pukul 02:00 pagi besok waktu lokal (WIB) - Melewati tengah malam
         id: 105,
         utcDate: (() => {
-          const d = new Date();
-          d.setDate(d.getDate() + 1);
-          d.setHours(2, 0, 0, 0);
-          return d.toISOString();
+          const parts = new Intl.DateTimeFormat("en-US", {
+            timeZone: "Asia/Jakarta",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          }).formatToParts(new Date());
+          const map = {};
+          parts.forEach((p) => {
+            map[p.type] = p.value;
+          });
+          const y = parseInt(map.year, 10);
+          const m = parseInt(map.month, 10);
+          const d = parseInt(map.day, 10);
+          // 02:00 WIB besok = UTC hour (2 - 7)
+          return new Date(Date.UTC(y, m - 1, d + 1, 2 - 7, 0, 0)).toISOString();
         })(),
         status: "TIMED",
         matchday: 29,
@@ -119,12 +130,24 @@ export const MOCK_FOOTBALL_DATA = {
         score: { fullTime: { home: null, away: null } },
       },
       {
+        // Laga pukul 21:00 besok waktu lokal (WIB)
         id: 106,
         utcDate: (() => {
-          const d = new Date();
-          d.setDate(d.getDate() + 1);
-          d.setHours(21, 0, 0, 0);
-          return d.toISOString();
+          const parts = new Intl.DateTimeFormat("en-US", {
+            timeZone: "Asia/Jakarta",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+          }).formatToParts(new Date());
+          const map = {};
+          parts.forEach((p) => {
+            map[p.type] = p.value;
+          });
+          const y = parseInt(map.year, 10);
+          const m = parseInt(map.month, 10);
+          const d = parseInt(map.day, 10);
+          // 21:00 WIB besok = UTC hour (21 - 7)
+          return new Date(Date.UTC(y, m - 1, d + 1, 21 - 7, 0, 0)).toISOString();
         })(),
         status: "SCHEDULED",
         matchday: 29,

@@ -400,9 +400,9 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 46px;
+  min-width: 48px;
   height: 22px;
-  padding: 0 4px;
+  padding: 0 6px;
   border-radius: 3px;
   background-color: #09090b;
   border: 1px solid var(--border);
@@ -410,19 +410,23 @@ a {
   font-size: 11px;
   font-weight: 600;
   flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .time-tag-live {
   color: var(--accent-live);
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .time-tag-finished {
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .time-tag-timed {
   color: var(--text-secondary);
+  white-space: nowrap;
 }
 
 .team-entity {

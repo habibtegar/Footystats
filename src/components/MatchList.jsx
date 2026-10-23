@@ -164,7 +164,7 @@ export function MatchList({ matches = [], competitionName, searchQuery, onResetS
                         <span className="time-tag-finished">FT</span>
                       ) : (
                         <span className="time-tag-timed" title={date}>
-                          {time !== "-" ? time.replace(" WIB", "") : "TBD"}
+                          {time !== "-" ? time : "TBD"}
                         </span>
                       )}
                     </div>
